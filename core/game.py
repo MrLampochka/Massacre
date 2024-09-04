@@ -4,7 +4,7 @@ import pygame
 
 
 import config
-from core.gui import GUI
+from core.gui.game import GUI
 from core.player import Player, PlayerSide
 
 unit_keys = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8, pygame.K_9]
@@ -46,7 +46,7 @@ class Game:
             self._draw()
 
     def _update(self):
-        self._gui.update(self._time_delta, self._players[0].coins, self._players[1].coins)
+        self._gui.update(self._time_delta, self._players[0], self._players[1])
         self._update_units()
 
     def _events(self):
@@ -70,6 +70,8 @@ class Game:
 
     def _draw(self):
         self._screen.fill(config.SCREEN_FILL)
+        self._screen.blit(self.background_image, (0, 0))
+
         self._draw_units()
         self._gui.draw(self._screen)
         pygame.display.set_caption(f"FPS: {int(self._clock.get_fps())}")
@@ -80,12 +82,12 @@ class Game:
 
     def _set_players(self):
         self._players = []
-        self._players.append(Player(config.PLAYER_START_COINS, side=PlayerSide.left))
+        self._players.append(Player(PlayerSide.left, config.PLAYER_START_COINS, config.PLAYER_COIN_TIME))
         # for n in range(1000):
         #     self._players[0].add_unit(0)
 
         if self._game_mode == GameMode.dual:
-            self._players.append(Player(config.PLAYER_START_COINS, side=PlayerSide.right))
+            self._players.append(Player(PlayerSide.right, config.PLAYER_START_COINS, config.PLAYER_COIN_TIME))
 
     def _draw_units(self):
         warriors = []
@@ -117,6 +119,9 @@ class Game:
         pygame.mouse.set_visible(True)
         self._screen = pygame.display.set_mode(size, pygame.DOUBLEBUF)
         self._gui.set(self._screen)
+
+        self.background_image = pygame.transform.scale(pygame.image.load('sprites/backgrounds/background.jpg').subsurface((200, 900), (config.SCREEN_WIDTH*2, config.SCREEN_HEIGHT*2)), config.SCREEN_SIZE)
+
 
     def _set_game_mode(self):
         self._game_mode = GameMode.dual
