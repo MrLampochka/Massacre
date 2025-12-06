@@ -11,5 +11,5 @@ Simple game constructor for creating game battles
 ```bash
 poetry install
 poetry shell
-./main.py
+./gui.py
 ```

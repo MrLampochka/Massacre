@@ -9,7 +9,7 @@ import pygame.sprite
 import pygame.transform
 
 import config
-from core.ammo import Ammo, HeavyAmmo
+from core.old.ammo_old import Ammo, HeavyAmmo
 from core.utils import SimpleTimer
 
 
@@ -19,6 +19,9 @@ class Direction(IntEnum):
 
 
 class PowerHealthBar:
+    def __init__(self):
+        pass
+
     def update_power_health_bar(self):
         height = config.BAR_HEIGHT
         width = self.rect.width / 2
@@ -34,7 +37,7 @@ class PowerHealthBar:
         reload_bar_pos = 0, height
         pygame.draw.rect(self.image, bar_background_color, (*reload_bar_pos, width, height))
         pygame.draw.rect(self.image, reload_bar_color,
-                         (*reload_bar_pos, width * self._reload_timer.ratio, height))
+                         (*reload_bar_pos, width * self._reload_timer.value, height))
 
 
 class BaseUnit(pygame.sprite.Sprite, PowerHealthBar):
@@ -67,7 +70,7 @@ class BaseUnit(pygame.sprite.Sprite, PowerHealthBar):
         self._direction = direction
 
         self.image = pygame.Surface((self.width, self.height + 10), pygame.SRCALPHA)
-        self.image_dict = self.image_dict = [pygame.transform.smoothscale(pygame.image.load(f'sprites/rifle/move/survivor-move_rifle_{i}.png'), (50, 50)) for i in range(0, 19)]
+        self.image_dict = self.image_dict = [pygame.transform.smoothscale(pygame.image.load(f'../../assets/images/rifle/move/survivor-move_rifle_{i}.png'), (50, 50)) for i in range(0, 19)]
         self.rect = pygame.Rect(self.pos, self.size)
         self.image.fill(color)
         self._sound = pygame.mixer.Sound(sound)
@@ -100,14 +103,13 @@ class BaseUnit(pygame.sprite.Sprite, PowerHealthBar):
         self.image = pygame.transform.rotate(self.image_dict[0], math.degrees(self._angle))
 
     def _update_attack(self):
-        if not self._attacking:
-            self._reload_timer.start(self._reload_time)
-            self._attacking = True
+        # if not self._attacking:
+        #     self._reload_timer.start(self._reload_time)
+        #     self._attacking = True
 
-        if self._reload_timer.is_expired():
+        if self._reload_timer.is_expired_restart(self._reload_time):
             self._sound.play()
             self.attack()
-            self._reload_timer.start(self._reload_time)
 
     def attack(self):
         pass
@@ -219,7 +221,6 @@ class HeavyShooter(BaseUnit):
 class Tower(BaseUnit):
     def __init__(self, group, pos, direction, **kwargs):
         super().__init__(group, pos, direction, **kwargs)
-        self.image_dict = self.image_dict = [pygame.transform.smoothscale(pygame.image.load(f'sprites/tower/cat.png'), (50, 50))]
         self._direction = Direction.right
     def attack(self):
         self._angle = 0

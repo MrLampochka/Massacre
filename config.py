@@ -1,30 +1,38 @@
-# Настройка экрана
-from core.unit import Warrior, Shooter, HeavyShooter
+import os
 
-SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (1400, 800)
+from core.old.units_old import Warrior, Shooter, HeavyShooter
+# Global settings
+os.environ["SDL_VIDEO_CENTERED"] = "1"
+DEBUG = False
+COLLISION = False # May very decrease fps!!!
+# Настройка экрана
+MENU_SCREEN = MENU_SCREEN_SIZE, DEFAULT_MENU_SCREEN_SIZE = (MENU_SCREEN_WIDTH, MENU_SCREEN_HEIGHT), (DEFAULT_MENU_SCREEN_WIDTH, DEFAULT_MENU_SCREEN_HEIGHT) = (600, 400), (600, 400)
+MAIN_SCREEN = MAIN_SCREEN_SIZE, DEFAULT_MAIN_SCREEN_SIZE = (MAIN_SCREEN_WIDTH, MAIN_SCREEN_HEIGHT), (DEFAULT_MAIN_SCREEN_WIDTH, DEFAULT_MAIN_SCREEN_HEIGHT) = (1280, 720), (1280, 720)
+
 FULLSCREEN_SIZE = 1920, 1080
-FULLSCREEN = False
+FULLSCREEN = True
 SCREEN_FILL = "gray"
-WINDOW_CAPTION = 'Game'
-GUI_PADDING = 25
-FPS = 120
+MENU_WINDOW_CAPTION = "Game Menu"
+MAIN_WINDOW_CAPTION = 'Game'
+GUI_PADDING = 10
+FPS = 60
 
 # Звуки
-PUNCH_SOUND = 'sound/punch.mp3'
-RIFLE_SOUND = 'sound/shot.mp3'
-SNIPER_SOUND = 'sound/sshot.mp3'
+PUNCH_SOUND = '../../assets/sound/punch.mp3'
+RIFLE_SOUND = '../../assets/sound/shot.mp3'
+SNIPER_SOUND = '../../assets/sound/sshot.mp3'
 
 # Игровое поле
 UNIT_SIZE = 50, 50
 GAME_FIELD_POS = X_INDENT, Y_INDENT = 50, 160 + GUI_PADDING
-SPAWN_RANGE = SCREEN_HEIGHT - (Y_INDENT * 2)
+SPAWN_RANGE = MAIN_SCREEN_HEIGHT - (Y_INDENT * 2)
 
 # Игроки
 PLAYER_HEALTH = 10000
-PLAYER_START_COINS = 10
-PLAYER_COIN_TIME = 10
+PLAYER_START_COINS = 10000
+PLAYER_COIN_TIME = 10000
 PLAYER_FIRST_POS = (X_INDENT, Y_INDENT)
-PLAYER_SECOND_POS = (SCREEN_WIDTH - X_INDENT, Y_INDENT)
+PLAYER_SECOND_POS = (MAIN_SCREEN_WIDTH - X_INDENT, Y_INDENT)
 
 # Цвета
 WHITE = (255, 255, 255)
@@ -48,6 +56,7 @@ AMMO_SIZE = 5, 5
 
 VISIBLE_RADIUS = SPAWN_RANGE
 
+
 units_list = [
     {
         "name": "Воин",
@@ -65,7 +74,6 @@ units_list = [
                 sound=PUNCH_SOUND,
             )
         }
-
     },
     {
         "name": "Стрелок",
@@ -137,6 +145,40 @@ units_list = [
     },
 ]
 
+# {
+#     "name": "СУПЕР",
+#     "cost": 100,
+#     "unit": {
+#         "class": Warrior,
+#         "kwargs": dict(
+#             size=UNIT_SIZE,
+#             damage=2000,
+#             health=10000,
+#             reload_time=100,
+#             speed=2,
+#             attack_radius=100,
+#             visible_radius=600,
+#             sound=PUNCH_SOUND,
+#             inventory={}
+#         )
+#     }
+# },
+
+# gun_list = [
+#     {
+#         "name": "Пистолет",
+#         "cost": 100,
+#         "gun": {
+#             "class": Rifle,
+#             "kwargs": {
+#                 "damage": 100,
+#                 "clip": 7,
+#                 "reload_time": 1000,
+#                 "fire_rate": 100,
+#             }
+#         }
+#     }
+# ]
 # units_list = [
 #     {
 #         "name": "Воин",
@@ -211,3 +253,4 @@ units_list = [
 #         )
 #     },
 # ]
+GAMES = []

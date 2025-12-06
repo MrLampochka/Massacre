@@ -74,6 +74,7 @@ dmypy.json
 .pyre/
 .pytype/
 cython_debug/
+.idea
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml

@@ -54,7 +54,7 @@ class HeavyAmmo(BaseAmmo):
     def __init__(self, group, start_pos, target_pos, damage):
         super().__init__(group, start_pos, target_pos, damage, (100, 100, 100, 255), (3, 3))
         self.x, self.y = self._start_pos = start_pos
-        self._length = math.hypot(*config.SCREEN_SIZE)
+        self._length = math.hypot(*config.MAIN_SCREEN_SIZE)
         self._width, self._height = config.AMMO_SIZE
 
         self._angle = math.atan2(target_pos[0] - self.x, target_pos[1] - self.y)

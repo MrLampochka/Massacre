@@ -1,18 +1,19 @@
-import pygame
+import asyncio
+
+import pygame as pg
 
 import config
-from core.game import Game
+from core.menu import Menu
+from core.window import Window
 
 
-def main():
-    pygame.init()
-    game = Game(
-        screen_size=config.SCREEN_SIZE,
-        FPS=config.FPS,
-        caption=config.WINDOW_CAPTION,
-    )
-    game.start()
+async def main():
+    await Menu(
+        Window(size=config.MENU_SCREEN_SIZE, caption=config.MENU_WINDOW_CAPTION, FPS=config.FPS, flags=pg.RESIZABLE),
+        games=config.GAMES
+    ).run()
 
 
 if __name__ == '__main__':
-    main()
+    pg.init()
+    asyncio.run(main())

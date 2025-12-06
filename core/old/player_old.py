@@ -4,11 +4,11 @@ import random
 import pygame.sprite
 
 import config
-from core.unit import Direction, BaseUnit, Tower
+from core.old.units_old import Direction, BaseUnit, Tower
 from core.utils import SimpleTimer
 
 
-class PlayerSide(Enum):
+class PSide(Enum):
     left = auto()
     right = auto()
 
@@ -18,11 +18,11 @@ class Player:
         self.side = side
         self.coins = coins
         self.coin_time = coin_time
-        self.direction = Direction.left if self.side == PlayerSide.right else Direction.right
-        self.pos = config.PLAYER_FIRST_POS if side == PlayerSide.left else config.PLAYER_SECOND_POS
+        self.direction = Direction.left if self.side == PSide.right else Direction.right
+        self.pos = config.PLAYER_FIRST_POS if side == PSide.left else config.PLAYER_SECOND_POS
         self.units = pygame.sprite.Group()
         self.health = self.max_health = config.PLAYER_HEALTH
-        self.line_surface = pygame.Surface(config.SCREEN_SIZE, pygame.SRCALPHA)
+        self.line_surface = pygame.Surface(config.MAIN_SCREEN_SIZE, pygame.SRCALPHA)
         self.coin_timer = SimpleTimer()
         self.x, self.y = self.pos
 
@@ -36,19 +36,12 @@ class Player:
                            visible_radius=config.VISIBLE_RADIUS,
                            sound=config.PUNCH_SOUND,
                            )
-    def add_unit(self, id_unit):
-
+    def add_unit(self, unit):
         x, y = self.pos
         pos = x, y + random.randint(0, config.SPAWN_RANGE)
-        try:
-            unit = config.units_list[id_unit]
-        except IndexError:
-            print("Нет такого бойца!")
-            return
-
         if self.coins >= unit["cost"]:
             self.coins -= unit["cost"]
-            BaseUnit.add_unit(group=self.units, pos=pos, direction=self.direction, unit=config.units_list[id_unit])
+            BaseUnit.add_unit(group=self.units, pos=pos, direction=self.direction, unit=unit)
 
     def update(self, units):
         self.health = self.tower.health
