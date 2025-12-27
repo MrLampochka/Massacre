@@ -1,9 +1,7 @@
 import pygame as pg
 
 import config
-from core.ball import Ball
 from core.game import BaseGame
-from core.control import SpriteControl
 from core.gui.gui import GUI
 from core.players import BotPlayer, HumanPlayer, BasePlayer
 from core.window import Window
@@ -11,63 +9,71 @@ from core.window import Window
 
 class TowerDefense(BaseGame):
     def _set_game(self):
-        self.player1 = HumanPlayer(side=BasePlayer.Side.LEFT)
-        self.player2 = BotPlayer(side=BotPlayer.Side.RIGHT)
+        self.players = [
 
-        self.player1.enemy, self.player2.enemy = self.player2, self.player1
-        self.players = [self.player1, self.player2]
+        ]
 
-        # for player in self.players:
-        self.player2.set(self.screen)
-        self.player1.set(self.screen)
-
-
+        for player in self.players:
+            player.set(self.screen)
+            player.enemy = [p for p in self.players if p != player]
 
         self.gui = GUI(self.screen, 9, config.GUI_PADDING, self.players)
+        self.surface = self.gui.field_surface
 
-        self.control = SpriteControl(
-            self.player1.units.sprites()[0],
-            lambda target_pos: BasePlayer.shot(
-                self.player1.units.sprites()[0],
-                target_pos - self.gui.field_surface_offset,
-                self.player1,
-                self.gui.field_surface.get_rect(),
-            ),
-        )
+        # self.control = ControlComponent(
+        #     self.player1.units.sprites()[0],
+        #     lambda target_pos: BasePlayer.shot(
+        #         self.player1.units.sprites()[0],
+        #         target_pos - self.gui.field_surface_offset,
+        #         self.player1,
+        #         self.gui.field_surface.get_rect(),
+        #     ),
+        # )
 
-        self.collided = pg.sprite.Group(
-            *self.players[0].targets_list, *self.players[1].targets_list
-        )
+        # self.collided = pg.sprite.Group(
+        #     *self.players[0].targets_list,
+        #     *self.players[1].targets_list
+        # )
 
     def _events(self):
         for event in pg.event.get():
-            self.gui.handler(event)
-            self.control.handler(event, self.start, self.stop)
+            if event.type == pg.QUIT:
+                self._running = False
+            elif not self.gui.event_handler(event):
+                for p in self.players:
+                    p.event_handler(event)
 
     def _update(self, dt):
-        [p.update(dt) for p in self.players]
+        for p in self.players:
+            p.update(dt)
+
         self.gui.update(dt)
 
-        # TODO: improve control
-        self.control.update(dt)
 
-        # TODO: update collision method
-        if config.COLLISION:
-            self.collided.empty()
-            self.collided.add(*self.players[0].targets_list, *self.players[1].targets_list)
-            pg.sprite.groupcollide(
-                self.collided,
-                self.collided,
-                False,
-                False,
-                lambda x, y: Ball.resolve_collision(dt, x, y),
-            )
+        # # TODO: update collision method
+        # if config.COLLISION:
+        #     self.collided.empty()
+        #     self.collided.add(*self.players[0].targets_list, *self.players[1].targets_list)
+        #     pg.sprite.groupcollide(
+        #         self.collided,
+        #         self.collided,
+        #         False,
+        #         False,
+        #         lambda x, y: Ball.resolve_collision(dt, x, y),
+        #     )
 
     def _draw(self, screen):
         screen.fill((50, 50, 50))
         self.gui.draw(screen)
+        for p in self.players:
+            p.draw(self.surface)
 
         if config.DEBUG:
+            for p in self.players:
+                for u in p.units.sprites():
+                    pg.draw.circle(self.gui.field_surface, (255, 125, 0), u.rect.center, int(u.targeting.radius), 2)
+                    pg.draw.circle(self.gui.field_surface, (255, 0, 0), u.rect.center, int(u.weapon.radius), 2)
+
             fps = self._clock.get_fps()
             fps_text = pg.font.SysFont(None, 24).render(
                 f"fps: {int(fps)}", True, (255, 255, 255)
