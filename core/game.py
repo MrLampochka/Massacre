@@ -4,7 +4,7 @@ import pygame
 from core.window import Window
 
 
-class BaseGame(ABC):
+class Game(ABC):
     """Базовый класс для игры на Pygame с поддержкой дельты времени и окна."""
 
     def __init__(self, window: Window):
