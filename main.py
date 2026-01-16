@@ -2,15 +2,15 @@ import asyncio
 
 import pygame as pg
 
-import config
-from core.menu import Menu
+import settings
+from scenes.menu import Menu
 from core.window import Window
 
 
 async def main():
     await Menu(
-        Window(size=config.MENU_SCREEN_SIZE, caption=config.MENU_WINDOW_CAPTION, FPS=config.FPS, flags=pg.RESIZABLE),
-        games=config.GAMES
+        Window(size=settings.MENU_SCREEN_SIZE, caption=settings.MENU_WINDOW_CAPTION, FPS=settings.FPS, flags=pg.RESIZABLE),
+        games=settings.GAMES
     ).run()
 
 

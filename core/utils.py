@@ -1,4 +1,8 @@
+import random
 from dataclasses import dataclass
+from enum import IntEnum
+
+from pygame import Vector2
 
 from core.component import Component
 
@@ -52,37 +56,38 @@ from core.component import Component
 #             return False
 
 
-# class SmoothMovementMixin:
-#     _x: float
-#     _y: float
-#
-#     def __init__(self, pos, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.pos = pos
-#
-#     @property
-#     def x(self):
-#         return self._x
-#
-#     @x.setter
-#     def x(self, x):
-#         self._x = x
-#
-#     @property
-#     def y(self):
-#         return self._y
-#
-#     @y.setter
-#     def y(self, value):
-#         self._y = value
-#
-#     @property
-#     def pos(self):
-#         return Vector2(self.x, self.y)
-#
-#     @pos.setter
-#     def pos(self, value):
-#         self.x, self.y = value
+class SmoothMovementMixin:
+    _x: float
+    _y: float
+
+    def __init__(self, pos, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.pos = pos
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, x):
+        self._x = x
+
+    @property
+    def y(self):
+        return self._y
+
+    @y.setter
+    def y(self, value):
+        self._y = value
+
+    @property
+    def pos(self):
+        return Vector2(self.x, self.y)
+
+    @pos.setter
+    def pos(self, value):
+        self.x, self.y = value
+
 
 class SimpleTimer:
     def __init__(self, duration=0):
@@ -143,7 +148,107 @@ class SV:
         r = self.current / self.max
         return 1.0 - r if rev else r
 
-
     def assign(self, current, max_value):
         self.current, self.max = current, max_value
 
+
+class Timer:
+    def __init__(self, value=None, cb=None):
+        super().__init__()
+        self.value: SV = SV(value) if value else SV(0)
+        self.running = False
+        self.cb = cb
+        self.is_expired = False
+
+    def start(self, value=None, cb=None):
+        if value:
+            self.value = SV(value)
+        else:
+            self.value.current = self.value.max
+
+        if cb:
+            self.cb = cb
+
+        self.running = True
+        self.is_expired = False
+
+    def stop(self):
+        self.running = False
+        self.is_expired = False
+        self.value.current = self.value.max
+
+    def update(self, dt):
+        if self.running:
+            self.value.current -= dt
+
+        if self.value.current <= 0:
+            self.value.current = 0
+            self.running = False
+            self.is_expired = True
+
+            if self.cb:
+                self.cb()
+
+
+def merge_dicts(a, b):
+    cfg = a.copy()
+    for k, v in b.items():
+        if k in cfg and isinstance(v, dict) and isinstance(cfg[k], dict):
+            cfg[k] = merge_dicts(cfg[k], v)
+        else:
+            cfg[k] = v
+
+    return cfg
+
+
+class GroupContainer:
+    class Layer(IntEnum):
+        TOWER = 0
+        UNIT = 1
+        PROJECTILE = 2
+        UI = 3
+
+    def __init__(self, **groups):
+        self._groups = groups
+
+    def __getattr__(self, item):
+        try:
+            return self._groups[item]
+        except KeyError:
+            raise AttributeError(item)
+
+    def draw(self, screen):
+        for group in self._groups.values():
+            group.draw(screen)
+
+    def update(self, dt):
+        for group in self._groups.values():
+            group.update(dt)
+
+
+class Point:
+    def __init__(self, area: tuple[tuple[int, int], tuple[int, int]] = None, points: list[tuple[int, int]] = None):
+        self.area = area
+        self.points = points
+
+    def get_random(self) -> Vector2:
+        if self.area is None:
+            raise ValueError("No area defined for random position")
+
+        (_x, _y), (w, h) = self.area
+        x = random.uniform(_x, _x + w)
+        y = random.uniform(_y, _y + h)
+        return Vector2(x, y)
+
+    def get_point(self, index: int) -> Vector2:
+        if not self.points:
+            raise ValueError("No points defined for this Position")
+        return Vector2(self.points[index % len(self.points)])
+
+    def get(self, index: int = 0) -> Vector2:
+        if self.points:
+            return self.get_point(index)
+        elif self.area:
+            return self.get_random()
+        else:
+            raise ValueError("Position must have either points or area")

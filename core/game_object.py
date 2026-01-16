@@ -36,6 +36,11 @@ class GameObject:
 
         return component
 
+    def init_components(self):
+        for component in self.components:
+            if hasattr(component, "on_added") and callable(component.on_added):
+                component.on_added()
+
     def get_component(self, component_type):
         for c in self.components:
             if isinstance(c, component_type):

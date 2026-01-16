@@ -2,8 +2,9 @@ from abc import ABC
 
 
 class Component(ABC):
-    def __init__(self):
+    def __init__(self, context=None):
         self.game_object = None
+        self.context = context if context else {}
 
     def update(self, dt):
         pass
@@ -23,4 +24,10 @@ class Component(ABC):
     def get_component(self, component_type):
         if self.game_object:
             return self.game_object.get_component(component_type)
+        return None
+
+    def get_component_by_name(self, name):
+        for c in self.game_object.components:
+            if c.__class__.__name__ == name.capitalize():
+                return c
         return None
